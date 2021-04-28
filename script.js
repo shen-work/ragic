@@ -19,7 +19,7 @@ function crossDomainGet(url, postata, callback) {
 
     if (url.indexOf('?') === -1) url += '?' + postata;
     else url += '&' + postata;
-    if (callback) url += '&callback=' + callback;
+    //if (callback) url += '&callback=' + callback;
 
     
     var xml = new XMLHttpRequest();
