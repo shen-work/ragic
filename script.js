@@ -21,20 +21,6 @@ function crossDomainGet(url, postata, callback) {
     else url += '&' + postata;
     //if (callback) url += '&callback=' + callback;
 
-    
-    var xml = new XMLHttpRequest();
-    xml.open("GET",url);
-    console.log(url);
-
-    xml.onreadystatechange = function(e)
-    {
-        console.log(e);
-        console.log(xml);
-    }
-
-    xml.send();
-    return;
-
 
     js.setAttribute('src', url);
     if (head) {
