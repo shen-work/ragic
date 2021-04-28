@@ -1,132 +1,186 @@
-/*
- **This sample take "Pet Store Demo" for example.
- */
+
+window.onload = function()
+{
+    var div = document.createElement("div");
+    div.id = "body";
+    
+
+    var tr_ary = {
+        "name":{
+            "name":"留言者暱稱",
+            "text":function(){return TextCr("text",{"id":"1000012"});}},
+        "content":{
+            "name":"留言內容",
+            "text":function(){return TextCr("textarea",{"id":"1000013"});}},
+        "submit":{
+            "name":"",
+            "text":function(){
+                return TextCr("button",{"value":"送出留言"},Submit) 
+            }
+        }
+    }
+
+    var table = document.createElement("table");
+    var tmp = document.createDocumentFragment();
+    
+    
+    for(var k in tr_ary)
+    {
+        var tr = document.createElement("tr");
+        
+        var td = document.createElement("td");
+        td.innerHTML = tr_ary[k].name;
+        tr.appendChild(td);
+
+        var td = document.createElement("td");
+        td.appendChild( tr_ary[k].text() );
+        tr.appendChild(td);
+        
+        tmp.appendChild(tr);
+    }
+    table.appendChild(tmp);
+
+    div.appendChild(table);
+
+    RagicGet("https://ap5.ragic.com/shen103227/forms/3/?api",function(_data){
+        var table = document.createElement("table");    
 
 
-//list all the domain ids from "Merchandise"
-var itemId = "1000001";
-var itemCategory = "1000002";
-var itemName = "1000003";
-var quantityLeft = "1000004";
-var itemPrice = "1000005";
-var itemDescription = "1000006";
+        for(var k in _data)
+        {
+            var _val = _data[k];
+
+            var tr = document.createElement("tr");
+
+            for(var idx in _val)
+            {
+                if(idx.indexOf("_")==0) continue;
+
+                
+                var td = document.createElement("td");
+                td.innerHTML = _val[idx].replaceAll("\n","<BR>");
+                tr.appendChild(td);
+    
+                tmp.appendChild(tr);
+
+            }
+
+        }
+        table.appendChild(tmp);
+
+        div.appendChild( document.createElement("hr") );
+        div.appendChild(table);
+    });
+    
+    document.body.appendChild(div);
+}
+
+function TextCr(type,attr,event)
+{
+    var obj;
+    
+    if(type=="textarea")
+    obj = document.createElement("textarea");
+    else
+    obj = document.createElement("input");
+    
+    obj.type = type;
+
+    for(var k in attr)
+        obj.setAttribute(k,attr[k]);
+
+    if(event!=undefined)
+    {
+        obj.addEventListener("click",event);
+    }
+
+    return obj;
+}
 
 
-//for GET request
-function crossDomainGet(url, postata, callback) {
-    var head = document.getElementsByTagName('head')[0];
-    var js = document.createElement('script');
+function Submit()
+{
+    var obj = this;
+    var form;
+    var search = obj;
 
-    if (url.indexOf('?') === -1) url += '?' + postata;
-    else url += '&' + postata;
-    if (callback) url += '&callback=' + callback;
 
-    /*
+    while(form==undefined)
+    {
+        search = search.parentElement;
+
+        if(search.nodeName=="TABLE")
+        {
+            form = search;
+        }
+    }
+
+    var list = form.querySelectorAll("input,textarea");
+    var post = "";
+
+    for(var i=0;i<list.length;i++)
+    {
+        if(list[i].type=="button") continue;
+        post += list[i].id + "=" + list[i].value + "&";
+    }
+
+    RagicPost("https://ap5.ragic.com/shen103227/forms/3/?api",post);
+    alert("留言已送出");
+    location.reload();
+}
+
+function RagicGet(url,func)
+{
+    var response;
     var xml = new XMLHttpRequest();
     xml.open("GET",url);
-    console.log(url);
 
     xml.onreadystatechange = function(e)
     {
-        console.log(e);
-        console.log(xml);
+        if(xml.readyState==4)
+        {
+            response = JSON.parse(xml.response);
+            
+            func( response );
+        }
     }
 
     xml.send();
-    return;
-    */
-
-
-    js.setAttribute('src', url);
-    if (head) {
-        head.appendChild(js);
-    } else {
-        document.body.appendChild(js);
-    }
-}
-
-//for POST request
-function crossDomainPost(url, postData) {
-    // Add the iframe with a unique name
-    var iframe = document.createElement("iframe");
-    document.body.appendChild(iframe);
-    iframe.style.display = "none";
-    iframe.contentWindow.name = "postIframe";
-
-    // construct a form with hidden inputs, targeting the iframe
-    var form = document.createElement("form");
-    form.target = "postIframe";
-    form.action = url;
-    form.method = "POST";
-
-    // repeat for each parameter
-    var data = postData.split('&');
-    for (var i = 0; i < data.length; i++) {
-        var input = document.createElement("input");
-        var _d = data[i];
-        input.type = "hidden";
-        input.name = _d.slice(0, _d.indexOf('='));
-        input.value = _d.slice(_d.indexOf('=') + 1);
-        form.appendChild(input);
-    }
-
-
-    document.body.appendChild(form);
-    form.submit();
-
-    //remove after post
-    document.body.removeChild(form);
-    iframe.onload = function () {
-        document.body.removeChild(iframe);
-    };
 }
 
 
+function RagicPost(url,post)
+{
+    var response;
 
-//Authentication
-(function () {
-    var account = "shen.work.project@gmail.com"; //fill your account info
-    var password = "shen103227"; //fill your password info
-    if (!localStorage.getItem("sessionId")) {
-        var postData = "u=" + account + "&p=" + password + "&login_type=sessionId";
-        var url = "https://api.ragic.com/AUTH";
-        //crossDomainGet(url, postData, '(function(jsessionId){if(jsessionId!=-1){localStorage.setItem("sessionId", jsessionId);}})');
+    var xml = new XMLHttpRequest();
+    xml.open("POST",url);
+    xml.setRequestHeader("Content-type","application/x-www-form-urlencoded;");
 
-        crossDomainGet(url, postData, '(function(jsessionId){console.log(jsessionId);})');
+    xml.onreadystatechange = function(e)
+    {
+        if(xml.readyState==4)
+        {
+            response = JSON.parse(xml.response);
+            console.log(response);
+        }
     }
-})();
 
-/*
-  Creating a New Entry
-  To use restful API, change www.ragic.com to api.ragic.com,
-  ex: https://www.ragic.com/demo/ragic-setup/3 to https://api.ragic.com/demo/ragic-setup/3
-*/
-//var url = "https://api.ragic.com/xxx/petstore/1?v=3"; //your Pet Store Demo url
-/*var entryData = itemId + "=12345&" +
-                itemCategory + "=fish&" + 
-                itemName + "=fish food&" + 
-                quantityLeft + "=10&" + 
-                itemPrice + "=100&" + 
-                itemDescription + "=test fish food";*/
-
-var url = "https://api.ragic.com/shenworkproject/forms/1";
-var entryData = "1000001=API網址&1000002=API標題";
-                
-window.onload = function () {
-    crossDomainPost(url, entryData);
-};
-
+    xml.send(post);
+}
 
 
 
 function RagicTest()
 {
-    var post_url = "https://api.ragic.com/shenworkproject/forms/1";
-    var post_data = "1000001=API網址&1000002=API標題";
+    var post_url = "https://ap5.ragic.com/shen103227/forms/1/?api";
+    var post_data = "1000006=API網址&1000007=API標題";
+    
 
 
     var xml = new XMLHttpRequest();
     xml.open("POST",post_url);
+    xml.setRequestHeader("Content-type","application/x-www-form-urlencoded;");
 
     xml.onreadystatechange = function(e)
     {
