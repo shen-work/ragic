@@ -12,6 +12,9 @@ window.onload = function()
         "content":{
             "name":"留言內容",
             "text":function(){return TextCr("textarea",{"id":"1000013"});}},
+        "pass":{
+            "name":"編輯密碼",
+            "text":function(){return TextCr("text",{"id":"1000015"});}},
         "submit":{
             "name":"",
             "text":function(){
@@ -42,9 +45,33 @@ window.onload = function()
 
     div.appendChild(table);
 
-    RagicGet("https://ap5.ragic.com/shen103227/forms/3/?api",function(_data){
-        var table = document.createElement("table");    
 
+    var table = document.createElement("table");
+    var tr = document.createElement("tr");
+    var td = document.createElement("td");
+    td.innerHTML = "留言者暱稱";
+    tr.appendChild(td);
+    var td = document.createElement("td");
+    td.innerHTML = "留言內容";
+    td.setAttribute("colspan","2");
+    tr.appendChild(td);
+    table.appendChild(tr);
+       
+
+    RagicGet("https://ap5.ragic.com/shen103227/forms/3/?api",function(_data)
+    {
+        var list = [];
+        for(var k in _data)
+        {
+            var _val = _data[k];
+
+            var idx = list.length;
+            list[idx] = _val;
+            _val._id = k;
+        }
+        _data = list;
+
+        _data.reverse()
 
         for(var k in _data)
         {
@@ -54,16 +81,22 @@ window.onload = function()
 
             for(var idx in _val)
             {
-                if(idx.indexOf("_")==0) continue;
+                if(idx.indexOf("_")==0 || idx=="編輯密碼") continue;
 
                 
                 var td = document.createElement("td");
                 td.innerHTML = _val[idx].replaceAll("\n","<BR>");
                 tr.appendChild(td);
-    
-                tmp.appendChild(tr);
-
+                
             }
+
+
+            var td = document.createElement("td");
+            var btn = TextCr("button",{"id":_val._id,"value":"編輯內容","data-act":"edit","data":_data},EditDel);
+            td.appendChild(btn);
+            tr.appendChild(td);
+
+            tmp.appendChild(tr);
 
         }
         table.appendChild(tmp);
@@ -73,6 +106,52 @@ window.onload = function()
     });
     
     document.body.appendChild(div);
+}
+
+function EditDel()
+{
+    // nodeId = true
+    var obj = this;
+    var tr = this.parentElement.parentElement;
+    var td = tr.querySelectorAll("td")[1];
+    
+    if(td.querySelector("textarea"))
+    {
+        var list = td.querySelectorAll("input,textarea");
+        var post = "";
+    
+        for(var i=0;i<list.length;i++)
+        {
+            if(list[i].type=="button") continue;
+            post += list[i].id + "=" + list[i].value + "&";
+        }
+        
+        var pass = prompt("請輸入編輯密碼");
+        if(pass==null) return;
+
+        RagicGet("https://ap5.ragic.com/shen103227/forms/3/"+obj.id+"?api",function(_data){
+
+            _data = _data[obj.id];
+
+            if(_data["編輯密碼"]!=pass)
+            {
+                alert("編輯密碼錯誤");
+                return;
+            }
+
+            RagicPost("https://ap5.ragic.com/shen103227/forms/3/"+obj.id+"?api",post);
+            location.reload();
+
+        });
+
+        return;
+    }
+    obj.value = "編輯儲存";
+
+    var textarea = TextCr("textarea",{"id":"1000013","value":td.innerText});
+
+    td.innerHTML = "";
+    td.appendChild(textarea);
 }
 
 function TextCr(type,attr,event)
@@ -87,7 +166,12 @@ function TextCr(type,attr,event)
     obj.type = type;
 
     for(var k in attr)
+    {
+        if(type=="textarea" && k=="value")
+        obj.innerHTML = attr[k];
+        else
         obj.setAttribute(k,attr[k]);
+    }
 
     if(event!=undefined)
     {
