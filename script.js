@@ -54,6 +54,7 @@ function crossDomainPost(url, postData) {
         form.appendChild(input);
     }
 
+
     document.body.appendChild(form);
     form.submit();
 
@@ -68,6 +69,7 @@ function crossDomainPost(url, postData) {
 
 //Authentication
 (function () {
+    return;
     var account = "shen.work.project@gmail.com"; //fill your account info
     var password = "shen103227"; //fill your password info
     if (!localStorage.getItem("sessionId")) {
@@ -82,14 +84,39 @@ function crossDomainPost(url, postData) {
   To use restful API, change www.ragic.com to api.ragic.com,
   ex: https://www.ragic.com/demo/ragic-setup/3 to https://api.ragic.com/demo/ragic-setup/3
 */
-var url = "https://api.ragic.com/xxx/petstore/1?v=3"; //your Pet Store Demo url
-var entryData = itemId + "=12345&" +
+//var url = "https://api.ragic.com/xxx/petstore/1?v=3"; //your Pet Store Demo url
+//var entryData = itemId + "=12345&" +
                 itemCategory + "=fish&" + 
                 itemName + "=fish food&" + 
                 quantityLeft + "=10&" + 
                 itemPrice + "=100&" + 
                 itemDescription + "=test fish food";
+
+var url = "https://api.ragic.com/shenworkproject/forms/1";
+var entryData = "1000001=API網址&1000002=API標題";
                 
 window.onload = function () {
     crossDomainPost(url, entryData);
 };
+
+
+
+
+function RagicTest()
+{
+    var post_url = "https://api.ragic.com/shenworkproject/forms/1";
+    var post_data = "1000001=API網址&1000002=API標題";
+
+
+    var xml = new XMLHttpRequest();
+    xml.open("POST",post_url);
+
+    xml.onreadystatechange = function(e)
+    {
+        console.log(e);
+        console.log(xml);
+    }
+
+    xml.send(post_data);
+
+}
