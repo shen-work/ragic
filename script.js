@@ -19,7 +19,22 @@ function crossDomainGet(url, postata, callback) {
 
     if (url.indexOf('?') === -1) url += '?' + postata;
     else url += '&' + postata;
-    //if (callback) url += '&callback=' + callback;
+    if (callback) url += '&callback=' + callback;
+
+    /*
+    var xml = new XMLHttpRequest();
+    xml.open("GET",url);
+    console.log(url);
+
+    xml.onreadystatechange = function(e)
+    {
+        console.log(e);
+        console.log(xml);
+    }
+
+    xml.send();
+    return;
+    */
 
 
     js.setAttribute('src', url);
@@ -75,7 +90,9 @@ function crossDomainPost(url, postData) {
     if (!localStorage.getItem("sessionId")) {
         var postData = "u=" + account + "&p=" + password + "&login_type=sessionId";
         var url = "https://api.ragic.com/AUTH";
-        crossDomainGet(url, postData, '(function(jsessionId){if(jsessionId!=-1){localStorage.setItem("sessionId", jsessionId);}})');
+        //crossDomainGet(url, postData, '(function(jsessionId){if(jsessionId!=-1){localStorage.setItem("sessionId", jsessionId);}})');
+
+        crossDomainGet(url, postData, '(function(jsessionId){console.log(jsessionId);})');
     }
 })();
 
