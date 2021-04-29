@@ -152,8 +152,13 @@ function EditDel()
                 return;
             }
 
-            RagicPost(WebConfig.url+obj.id+"?api",post);
-            location.reload();
+            
+            RagicPost(WebConfig.url+obj.id+"?api",post,function(){
+
+                location.reload();
+
+            });
+            
 
         });
 
@@ -193,19 +198,6 @@ function TextCr(type,attr,event)
 
     return obj;
 }
-
-function SetWebConfigUrl()
-{
-    var WebConfigUrl = document.querySelector("#WebConfigUrl").value;
-
-    var WebConfig = sessionStorage.WebConfig||{};
-
-    WebConfig.url = WebConfigUrl;
-
-    sessionStorage.WebConfig = JSON.stringify(WebConfig);
-
-}
-
 
 function Submit()
 {
@@ -258,19 +250,18 @@ function RagicGet(url,func)
 }
 
 
-function RagicPost(url,post)
-{
-    var response;
+function RagicPost(url,post,func)
+{    
 
     var xml = new XMLHttpRequest();
     xml.open("POST",url);
     xml.setRequestHeader("Content-type","application/x-www-form-urlencoded;");
 
-    xml.onreadystatechange = function()
+    xml.onreadystatechange = function(e)
     {
         if(xml.readyState==4)
         {
-            response = JSON.parse(xml.response);
+            func();
         }
     }
 
