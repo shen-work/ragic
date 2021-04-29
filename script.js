@@ -1,8 +1,21 @@
+var WebConfig = {
+    "url":"https://ap5.ragic.com/shen103227/forms/3/"
+};
+
 
 window.onload = function()
 {
     var div = document.createElement("div");
     div.id = "body";
+
+    /*
+    var input = TextCr("text",{"id":"WebConfigUrl","value":WebConfig.url});
+    var btn = TextCr("button",{"value":"設定Ragic網址"},SetWebConfigUrl);
+    var tmp = document.createDocumentFragment();
+    tmp.appendChild(input);
+    tmp.appendChild(btn);
+    div.appendChild(tmp);
+    */
     
 
     var tr_ary = {
@@ -58,7 +71,7 @@ window.onload = function()
     table.appendChild(tr);
        
 
-    RagicGet("https://ap5.ragic.com/shen103227/forms/3/?api",function(_data)
+    RagicGet(WebConfig.url+"?api",function(_data)
     {
         var list = [];
         for(var k in _data)
@@ -129,7 +142,7 @@ function EditDel()
         var pass = prompt("請輸入編輯密碼");
         if(pass==null) return;
 
-        RagicGet("https://ap5.ragic.com/shen103227/forms/3/"+obj.id+"?api",function(_data){
+        RagicGet(WebConfig.url+obj.id+"?api",function(_data){
 
             _data = _data[obj.id];
 
@@ -139,7 +152,7 @@ function EditDel()
                 return;
             }
 
-            RagicPost("https://ap5.ragic.com/shen103227/forms/3/"+obj.id+"?api",post);
+            RagicPost(WebConfig.url+obj.id+"?api",post);
             location.reload();
 
         });
@@ -181,6 +194,18 @@ function TextCr(type,attr,event)
     return obj;
 }
 
+function SetWebConfigUrl()
+{
+    var WebConfigUrl = document.querySelector("#WebConfigUrl").value;
+
+    var WebConfig = sessionStorage.WebConfig||{};
+
+    WebConfig.url = WebConfigUrl;
+
+    sessionStorage.WebConfig = JSON.stringify(WebConfig);
+
+}
+
 
 function Submit()
 {
@@ -208,7 +233,7 @@ function Submit()
         post += list[i].id + "=" + list[i].value + "&";
     }
 
-    RagicPost("https://ap5.ragic.com/shen103227/forms/3/?api",post);
+    RagicPost(WebConfig.url+"?api",post);
     alert("留言已送出");
     location.reload();
 }
@@ -241,37 +266,14 @@ function RagicPost(url,post)
     xml.open("POST",url);
     xml.setRequestHeader("Content-type","application/x-www-form-urlencoded;");
 
-    xml.onreadystatechange = function(e)
+    xml.onreadystatechange = function()
     {
         if(xml.readyState==4)
         {
             response = JSON.parse(xml.response);
-            console.log(response);
         }
     }
 
     xml.send(post);
 }
 
-
-
-function RagicTest()
-{
-    var post_url = "https://ap5.ragic.com/shen103227/forms/1/?api";
-    var post_data = "1000006=API網址&1000007=API標題";
-    
-
-
-    var xml = new XMLHttpRequest();
-    xml.open("POST",post_url);
-    xml.setRequestHeader("Content-type","application/x-www-form-urlencoded;");
-
-    xml.onreadystatechange = function(e)
-    {
-        console.log(e);
-        console.log(xml);
-    }
-
-    xml.send(post_data);
-
-}
